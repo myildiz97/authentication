@@ -9,7 +9,6 @@ export async function POST(req: Request) {
     const user = await User.findOne({
       email,
     }).select('_id');
-    console.log('user: ', user);
     return NextResponse.json({ user }, { status: 200 });
   } catch (error) {
     console.error(error);
