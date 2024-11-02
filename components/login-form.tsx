@@ -31,22 +31,6 @@ export default function LoginForm() {
       }
 
       router.replace('dashboard');
-
-      // const res = await fetch('/api/login', {
-      //   method: 'POST',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //   },
-      //   body: JSON.stringify({ email, password }),
-      // });
-
-      // if (res.ok) {
-      //   const form = e.target as HTMLFormElement;
-      //   form.reset();
-      //   console.log('User logged in');
-      // } else {
-      //   setError('Error logging in');
-      // }
     } catch (error) {
       console.error(error);
       setError('Error logging in');
