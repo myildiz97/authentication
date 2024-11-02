@@ -19,7 +19,7 @@ export const AUTH_OPTIONS: NextAuthOptions = {
         }
 
         if (!credentials?.email || !credentials.password) {
-          return null
+          return null;
         }
 
         const { email, password } = credentials;
@@ -52,7 +52,12 @@ export const AUTH_OPTIONS: NextAuthOptions = {
   },
   secret: process.env.NEXTAUTH_SECRET,
   pages: {
-    signIn: "/",
+    signIn: "/login",
+  },
+  callbacks: {
+    async redirect({ baseUrl }) {
+      return baseUrl;
+    },
   },
 };
 
