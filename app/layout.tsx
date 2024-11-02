@@ -14,11 +14,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <title>
+        Authenticating with Auth.js
+      </title>
       <body
         className={`antialiased`}
       >
         <AuthProvider>
-          {children}
+          <main>{children}</main>
         </AuthProvider>
       </body>
     </html>

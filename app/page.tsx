@@ -7,8 +7,11 @@ async function Home() {
   const session = await getServerSession(AUTH_OPTIONS);
 
   if (session) {
+    console.log('Session found, redirecting to dashboard');
     redirect('/dashboard');
   }
+
+
   return (
     <div className="w-full min-h-screen flex flex-col items-center justify-center">
       <LoginForm />
