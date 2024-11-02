@@ -55,7 +55,12 @@ export const AUTH_OPTIONS: NextAuthOptions = {
     signIn: "/login",
   },
   callbacks: {
-    async redirect({ baseUrl }) {
+    async redirect({ url, baseUrl }) {
+      console.log(url, baseUrl);
+      // Ensure the redirect URL is not the same as the signIn page to avoid infinite loop
+      if (url.startsWith(baseUrl) && url !== `${baseUrl}/login`) {
+        return url;
+      }
       return baseUrl;
     },
   },
