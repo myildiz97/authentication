@@ -28,7 +28,6 @@ export default function RegisterForm() {
       });
 
       const { user } = await res.json();
-      console.log('user-fr: ', user);
       if (user) {
         setError('User already exists');
         return;
@@ -90,7 +89,7 @@ export default function RegisterForm() {
         )
       }
       <Link 
-        href='/' 
+        href='/login' 
         className='text-blue-500'
       >
         Login
