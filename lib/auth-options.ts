@@ -4,8 +4,7 @@ import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 
-// Define the authOptions with an explicit type
-export const AUTH_OPTIONS: NextAuthOptions = {
+export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
       name: "credentials",
@@ -53,17 +52,22 @@ export const AUTH_OPTIONS: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
   pages: {
     signIn: "/login",
+    newUser: "/register",
   },
   callbacks: {
-    async redirect({ url, baseUrl }) {
-      console.log(url, baseUrl);
-      // Ensure the redirect URL is not the same as the signIn page to avoid infinite loop
-      if (url.startsWith(baseUrl) && url !== `${baseUrl}/login`) {
-        return url;
+    jwt: async ({ user, token, trigger, session }) => {
+      if (trigger === "update") {
+        return { ...token, ...session };
       }
-      return baseUrl;
+      return { ...token, ...user };
     },
+    // async redirect({ url, baseUrl }) {
+    //   console.log(url, baseUrl);
+    //   // Ensure the redirect URL is not the same as the signIn page to avoid infinite loop
+    //   if (url.startsWith(baseUrl) && url !== `${baseUrl}/login`) {
+    //     return url;
+    //   }
+    //   return baseUrl;
+    // },
   },
 };
-
-export default AUTH_OPTIONS;

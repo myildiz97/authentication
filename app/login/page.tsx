@@ -1,10 +1,10 @@
 import LoginForm from '@/components/login-form';
-import AUTH_OPTIONS from '@/lib/auth-options';
+import { authOptions } from '@/lib/auth-options';
 import { getServerSession } from 'next-auth';
 import { redirect } from 'next/navigation';
 
 async function Login() {
-  const session = await getServerSession(AUTH_OPTIONS);
+  const session = await getServerSession(authOptions);
 
   console.log('session: ', session);
 
