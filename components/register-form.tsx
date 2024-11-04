@@ -44,8 +44,7 @@ export default function RegisterForm() {
       if (response.ok) {
         const form = e.target as HTMLFormElement;
         form.reset();
-        console.log('User registered');
-        router.push('/');
+        router.push('/login');
       } else {
         setError('Error registering user');
       }

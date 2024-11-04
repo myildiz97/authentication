@@ -20,7 +20,7 @@ export default withAuth(
       return NextResponse.redirect(new URL('/dashboard', req.url));
     }
     if (pathname.startsWith('/api') && !token) {
-      return NextResponse.json({ message: 'unauthenticated' }, { status: 401 });
+      return NextResponse.json({ message: 'Unauthenticated' }, { status: 401 });
     }
     return NextResponse.next();
   },
