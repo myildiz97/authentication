@@ -31,5 +31,11 @@ module.exports = {
         printWidth: 120,
       },
     ],
+    overrides: [
+      {
+        files: ['*.ts', '*.tsx'],
+        parser: '@typescript-eslint/parser',
+      },
+    ],
   },
 };
