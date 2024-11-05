@@ -8,7 +8,7 @@ export async function POST(req: Request) {
     await connectToDb();
     const user = await User.findOne({
       email,
-    }).select('_id');
+    });
     return NextResponse.json({ user }, { status: 200 });
   } catch (error) {
     console.error(error);

@@ -1,22 +1,39 @@
-"use client";
+'use client';
 import * as React from 'react';
-import Link from 'next/link';
-import { signIn } from 'next-auth/react';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
+import toast from 'react-hot-toast';
+
+import { Button } from '@/components/ui/button';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
 import { useRouter } from 'next/navigation';
+import { signIn } from 'next-auth/react';
+import Link from 'next/link';
 
-export default function LoginForm() {
-  const [email, setEmail] = React.useState('');
-  const [password, setPassword] = React.useState('');
-  const [error, setError] = React.useState('');
+const LoginFormSchema = z.object({
+  email: z.string().email({
+    message: 'Please enter a valid email.',
+  }),
+  password: z.string().min(6, 'Password should be at least 6 characters.'),
+});
 
+export function LoginForm() {
   const router = useRouter();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email || !password) {
-      setError('Please fill all fields');
-      return;
-    }
+  const form = useForm<z.infer<typeof LoginFormSchema>>({
+    resolver: zodResolver(LoginFormSchema),
+    defaultValues: {
+      email: '',
+      password: '',
+    },
+  });
+
+  async function onSubmit(data: z.infer<typeof LoginFormSchema>) {
+    // console.log(data);
+
+    const { email, password } = data;
 
     try {
       const authRes = await signIn('credentials', {
@@ -26,33 +43,68 @@ export default function LoginForm() {
       });
 
       if (authRes?.error) {
-        setError('Invalid Credentials');
+        toast.error('Invalid Credentials');
         return;
       }
 
       router.push('/dashboard');
     } catch (error) {
       console.error(error);
-      setError('Error logging in');
+      toast.error('Error logging in');
     }
   }
 
-
   return (
-    <form onSubmit={handleSubmit} className='flex flex-col items-center justify-center gap-y-4'>
-      <input onChange={(e) => setEmail(e.target.value)} className='p-2 rounded-sm' type="email" placeholder="Email" />
-      <input onChange={(e) => setPassword(e.target.value)} className='p-2 rounded-sm' type="password" placeholder="Password" />
-      <button type="submit" className='bg-green-500 p-2 rounded-sm'>Login</button>
-      {
-        error && (
-          <div className='text-red-500'>
-            {error}
-          </div>
-        )
-      }
-      <Link href='/register' className='text-blue-500'>
-        Register
+    <div className="w-full flex flex-col items-center justify-center gap-y-4">
+      <Form {...form}>
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="w-[300px] sm:w-1/2 lg:1/3 flex flex-col justify-center items-center gap-y-4"
+        >
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem className="w-full">
+                <FormLabel className="font-bold text-foreground text-xl">Email</FormLabel>
+                <FormControl>
+                  <Input
+                    className="text-lg px-4 py-2 bg-foreground text-background"
+                    placeholder="myildizwork@gmail.com"
+                    type="email"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="password"
+            render={({ field }) => (
+              <FormItem className="w-full">
+                <FormLabel className="font-bold text-foreground text-xl">Password</FormLabel>
+                <FormControl>
+                  <Input
+                    className="text-lg px-4 py-2 bg-foreground text-background"
+                    placeholder="Password"
+                    type="password"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <Button type="submit" size={'lg'} className="text-lg bg-foreground text-background hover:bg-accent">
+            Login
+          </Button>
+        </form>
+      </Form>
+      <Link href="/register" className="text-foreground hover:text-accent">
+        I do not have account
       </Link>
-    </form>
+    </div>
   );
 }

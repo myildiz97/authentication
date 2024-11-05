@@ -1,16 +1,14 @@
-import connectToDb from '@/lib/mongodb';
-import User from '@/models/user';
-import { NextAuthOptions } from "next-auth";
-import CredentialsProvider from "next-auth/providers/credentials";
-import bcrypt from "bcryptjs";
+import { NextAuthOptions } from 'next-auth';
+import CredentialsProvider from 'next-auth/providers/credentials';
+import bcrypt from 'bcryptjs';
 
 export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
-      name: "credentials",
+      name: 'credentials',
       credentials: {
-        email: { label: "Email", type: "email", placeholder: "example@example.com" },
-        password: { label: "Password", type: "password" },
+        email: { label: 'Email', type: 'email', placeholder: 'example@example.com' },
+        password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
         if (!credentials) {
@@ -24,8 +22,18 @@ export const authOptions: NextAuthOptions = {
         const { email, password } = credentials;
 
         try {
-          await connectToDb();
-          const user = await User.findOne({ email });
+          const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
+          const res = await fetch(`${baseUrl}/api/user/getUser`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ email }),
+          });
+
+          const { user } = await res.json();
+
+          console.log(user);
 
           if (!user) {
             return null;
@@ -46,27 +54,19 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   session: {
-    strategy: "jwt", // No need for explicit casting
+    strategy: 'jwt', // No need for explicit casting
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
   secret: process.env.NEXTAUTH_SECRET,
   pages: {
-    signIn: "/login",
+    signIn: '/login',
   },
   callbacks: {
     jwt: async ({ user, token, trigger, session }) => {
-      if (trigger === "update") {
+      if (trigger === 'update') {
         return { ...token, ...session };
       }
       return { ...token, ...user };
     },
-    // async redirect({ url, baseUrl }) {
-    //   console.log(url, baseUrl);
-    //   // Ensure the redirect URL is not the same as the signIn page to avoid infinite loop
-    //   if (url.startsWith(baseUrl) && url !== `${baseUrl}/login`) {
-    //     return url;
-    //   }
-    //   return baseUrl;
-    // },
   },
 };

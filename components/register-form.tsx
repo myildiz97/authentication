@@ -1,25 +1,43 @@
-"use client";
+'use client';
 import * as React from 'react';
-import Link from 'next/link';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
+import toast from 'react-hot-toast';
+
+import { Button } from '@/components/ui/button';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
-export default function RegisterForm() {
-  const [name, setName] = React.useState('');
-  const [email, setEmail] = React.useState('');
-  const [password, setPassword] = React.useState('');
-  const [error, setError] = React.useState('');
+const RegisterFormSchema = z.object({
+  name: z.string().min(3, 'Name should be at least 2 characters.'),
+  email: z.string().email({
+    message: 'Please enter a valid email.',
+  }),
+  password: z.string().min(6, 'Password should be at least 6 characters.'),
+});
 
+export function RegisterForm() {
   const router = useRouter();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!name || !email || !password) {
-      setError('Please fill all fields');
-      return;
-    }
+  const form = useForm<z.infer<typeof RegisterFormSchema>>({
+    resolver: zodResolver(RegisterFormSchema),
+    defaultValues: {
+      name: '',
+      email: '',
+      password: '',
+    },
+  });
+
+  async function onSubmit(data: z.infer<typeof RegisterFormSchema>) {
+    // console.log(data);
+
+    const { name, email, password } = data;
 
     try {
-      const res = await fetch('/api/userExists', {
+      const res = await fetch('/api/user/getUser', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -29,7 +47,7 @@ export default function RegisterForm() {
 
       const { user } = await res.json();
       if (user) {
-        setError('User already exists');
+        toast.error('User already exists');
         return;
       }
 
@@ -42,57 +60,81 @@ export default function RegisterForm() {
       });
 
       if (response.ok) {
-        const form = e.target as HTMLFormElement;
         form.reset();
         router.push('/login');
       } else {
-        setError('Error registering user');
+        toast.error('Error registering user');
       }
     } catch (error) {
       console.error(error);
-      setError('Error registering user');
+      toast.error('Error registering user');
     }
   }
 
   return (
-    <form className='flex flex-col items-center justify-center gap-y-4' onSubmit={handleSubmit}>
-      <input 
-        className='p-2 rounded-sm' 
-        type="text" 
-        placeholder="Name"
-        onChange={(e) => setName(e.target.value)}
-      />
-      <input 
-        className='p-2 rounded-sm' 
-        type="email" 
-        placeholder="Email"
-        onChange={(e) => setEmail(e.target.value)}
-      />
-      <input 
-        className='p-2 rounded-sm' 
-        type="password" 
-        placeholder="Password"
-        onChange={(e) => setPassword(e.target.value)}
-      />
-      <button 
-        type="submit" 
-        className='bg-green-500 p-2 rounded-sm'
-      >
-      Register
-      </button>
-      {
-        error && (
-          <div className='text-red-500'>
-            {error}
-          </div>
-        )
-      }
-      <Link 
-        href='/login' 
-        className='text-blue-500'
-      >
-        Login
+    <div className="w-full flex flex-col items-center justify-center gap-y-4">
+      <Form {...form}>
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="w-[300px] md:w-1/3 flex flex-col justify-center items-center gap-y-4"
+        >
+          <FormField
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <FormItem className="w-full">
+                <FormLabel className="font-bold text-foreground text-xl">Name</FormLabel>
+                <FormControl>
+                  <Input className="text-lg px-4 py-2 bg-foreground text-background" placeholder="Mehmet" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem className="w-full">
+                <FormLabel className="font-bold text-foreground text-xl">Email</FormLabel>
+                <FormControl>
+                  <Input
+                    className="text-lg px-4 py-2 bg-foreground text-background"
+                    placeholder="myildizwork@gmail.com"
+                    type="email"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="password"
+            render={({ field }) => (
+              <FormItem className="w-full">
+                <FormLabel className="font-bold text-foreground text-xl">Password</FormLabel>
+                <FormControl>
+                  <Input
+                    className="text-lg px-4 py-2 bg-foreground text-background"
+                    placeholder="Password"
+                    type="password"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <Button type="submit" size={'lg'} className="text-lg bg-foreground text-background hover:bg-accent">
+            Register
+          </Button>
+        </form>
+      </Form>
+      <Link href="/login" className="text-foreground hover:text-accent">
+        I have account
       </Link>
-    </form>
+    </div>
   );
-} 
+}
