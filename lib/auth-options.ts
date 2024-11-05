@@ -1,6 +1,8 @@
 import { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import bcrypt from 'bcryptjs';
+import connectToDb from './mongodb';
+import User from '@/models/user';
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -22,18 +24,8 @@ export const authOptions: NextAuthOptions = {
         const { email, password } = credentials;
 
         try {
-          const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
-          const res = await fetch(`${baseUrl}/api/user/getUser`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ email }),
-          });
-
-          const { user } = await res.json();
-
-          console.log(user);
+          await connectToDb();
+          const user = await User.findOne({ email });
 
           if (!user) {
             return null;
