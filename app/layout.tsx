@@ -6,7 +6,7 @@ import { Toaster } from 'react-hot-toast';
 
 export const metadata: Metadata = {
   title: 'Authenticating with Auth.js',
-  description: 'Learn how to authenticate with Auth.js',
+  description: 'Learn how to authenticate with NextAuth.js',
 };
 
 export default function RootLayout({

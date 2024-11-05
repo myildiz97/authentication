@@ -60,6 +60,7 @@ export function RegisterForm() {
       });
 
       if (response.ok) {
+        toast.success('User registered successfully');
         form.reset();
         router.push('/login');
       } else {
